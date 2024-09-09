@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD 게시판</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .form-group {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .form-group input,
+    .form-group button {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .form-group input {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .edit,
+    .delete {
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .edit {
+      background-color: #4CAF50;
+    }
+
+    .delete {
+      background-color: #f44336;
+    }
+
+    @media (max-width: 600px) {
+      .form-group {
+        flex-direction: column;
+      }
+
+      .form-group input {
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>로컬스토리지 CRUD 게시판</h1>
+
+  <div class="form-group">
+    <input type="text" id="title" placeholder="제목을 입력하세요" />
+    <button id="addBtn">추가</button>
+  </div>
+
+  <table id="board">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>수정</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 게시글이 여기 표시됩니다 -->
+    </tbody>
+  </table>
+
+  <script>
+    const addBtn = document.getElementById('addBtn');
+    const titleInput = document.getElementById('title');
+    const board = document.getElementById('board').getElementsByTagName('tbody')[0];
+    let editIndex = null;
+
+    // 로컬스토리지에서 데이터 가져오기
+    function loadBoard() {
+      const posts = JSON.parse(localStorage.getItem('posts')) || [];
+      board.innerHTML = '';
+      posts.forEach((post, index) => {
+        const row = board.insertRow();
+        row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${post}</td>
+                    <td><button class="edit" onclick="editPost(${index})">수정</button></td>
+                    <td><button class="delete" onclick="deletePost(${index})">삭제</button></td>
+                `;
+      });
+    }
+
+    // 게시물 추가 또는 수정
+    addBtn.addEventListener('click', () => {
+      const title = titleInput.value.trim();
+      if (title === '') {
+        alert('제목을 입력하세요!');
+        return;
+      }
+
+      const posts = JSON.parse(localStorage.getItem('posts')) || [];
+      if (editIndex === null) {
+        // 새 게시물 추가
+        posts.push(title);
+      } else {
+        // 기존 게시물 수정
+        posts[editIndex] = title;
+        editIndex = null;
+      }
+
+      localStorage.setItem('posts', JSON.stringify(posts));
+      titleInput.value = '';
+      loadBoard();
+    });
+
+    // 게시물 수정
+    function editPost(index) {
+      const posts = JSON.parse(localStorage.getItem('posts'));
+      titleInput.value = posts[index];
+      editIndex = index;
+    }
+
+    // 게시물 삭제
+    function deletePost(index) {
+      const posts = JSON.parse(localStorage.getItem('posts'));
+      posts.splice(index, 1);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      loadBoard();
+    }
+
+    // 초기 로드
+    loadBoard();
+  </script>
+
+</body>
+
+</html>
